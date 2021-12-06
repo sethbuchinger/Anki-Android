@@ -759,7 +759,7 @@ public class AnkiDroidApp extends Application {
         storageInfo.put("DISK_FREE", "");
         try {
             File[] externalStorageVolumes = ContextCompat.getExternalFilesDirs(getApplicationContext(),null);
-            File primaryExternalStorage = externalStorageVolumes[1];
+            File primaryExternalStorage = externalStorageVolumes[0];
             path = primaryExternalStorage.getAbsolutePath();
             StatFs stats = new StatFs(path);
             long total = (stats.getTotalBytes());
