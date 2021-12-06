@@ -196,6 +196,8 @@ public class MyAccount extends AnkiActivity {
 
 
     private void initAllContentViews() {
+
+
         mLoginToMyAccountView = getLayoutInflater().inflate(R.layout.my_account, null);
         mUsername = mLoginToMyAccountView.findViewById(R.id.username);
         mPassword = mLoginToMyAccountView.findViewById(R.id.password);

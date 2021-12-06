@@ -149,7 +149,7 @@
                 android:background="@null"
                 android:textSize="@dimen/abc_text_size_button_material"
                 android:textColor="?attr/colorAccent"
-                android:padding="3dp"
+                android:padding="0dp"
                 android:layout_gravity="center"
                 android:singleLine="true"
                 android:text="@string/sign_up" />
@@ -162,7 +162,7 @@
                 android:background="@null"
                 android:textSize="@dimen/abc_text_size_button_material"
                 android:textColor="?attr/colorAccent"
-                android:padding="3dp"
+                android:padding="0dp"
                 android:layout_gravity="center"
                 android:singleLine="true"
                 android:text="@string/lost_mail_instructions" />

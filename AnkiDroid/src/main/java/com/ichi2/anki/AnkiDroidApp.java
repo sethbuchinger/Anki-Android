@@ -34,9 +34,11 @@ import android.os.LocaleList;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.os.StatFs;
 import android.util.Log;
 import android.view.ViewConfiguration;
 import android.webkit.CookieManager;
@@ -63,12 +65,15 @@ import org.acra.annotation.AcraDialog;
 import org.acra.annotation.AcraHttpSender;
 import org.acra.annotation.AcraLimiter;
 import org.acra.annotation.AcraToast;
+import org.acra.annotation.AcraMailSender;
 import org.acra.config.CoreConfigurationBuilder;
 import org.acra.config.DialogConfigurationBuilder;
 import org.acra.config.LimiterData;
 import org.acra.config.ToastConfigurationBuilder;
 import org.acra.sender.HttpSender;
 
+
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Locale;
@@ -125,8 +130,10 @@ import static timber.log.Timber.DebugTree;
             ReportField.SHARED_PREFERENCES,
             //ReportField.APPLICATION_LOG,
             ReportField.MEDIA_CODEC_LIST,
-            ReportField.THREAD_DETAILS
+            ReportField.THREAD_DETAILS,
             //ReportField.USER_IP
+
+
         },
         logcatArguments = { "-t", "100", "-v", "time", "ActivityManager:I", "SQLiteLog:W", AnkiDroidApp.TAG + ":D", "*:S" }
 )
@@ -142,6 +149,10 @@ import static timber.log.Timber.DebugTree;
         httpMethod = HttpSender.Method.PUT,
         uri = BuildConfig.ACRA_URL
 )
+@AcraMailSender(
+        mailTo = "sethbuchinger@gmail.com"
+)
+
 @AcraToast(
         resText = R.string.feedback_auto_toast_text
 )
@@ -149,6 +160,8 @@ import static timber.log.Timber.DebugTree;
         exceptionClassLimit = 1000,
         stacktraceLimit = 1
 )
+
+
 public class AnkiDroidApp extends Application {
 
     /**
@@ -240,9 +253,12 @@ public class AnkiDroidApp extends Application {
      */
     private void setAcraConfigBuilder(CoreConfigurationBuilder acraCoreConfigBuilder) {
         this.mAcraCoreConfigBuilder = acraCoreConfigBuilder;
+        ACRA.DEV_LOGGING = true;
         ACRA.init(this, acraCoreConfigBuilder);
         ACRA.getErrorReporter().putCustomData(WEBVIEW_VER_NAME, fetchWebViewInformation().get(WEBVIEW_VER_NAME));
         ACRA.getErrorReporter().putCustomData("WEBVIEW_VER_CODE", fetchWebViewInformation().get("WEBVIEW_VER_CODE"));
+        ACRA.getErrorReporter().putCustomData("DISK_TOTAL", fetchStorageInformation().get("DISK_TOTAL"));
+        ACRA.getErrorReporter().putCustomData("DISK_FREE", fetchStorageInformation().get("DISK_FREE"));
     }
 
     @Override
@@ -733,6 +749,32 @@ public class AnkiDroidApp extends Application {
             Timber.w(e);
         }
         return webViewInfo;
+    }
+
+    @NonNull
+    private HashMap<String, String> fetchStorageInformation() {
+        HashMap<String, String> storageInfo = new HashMap<>();
+        String path;
+        storageInfo.put("DISK_TOTAL", "");
+        storageInfo.put("DISK_FREE", "");
+        try {
+            File[] externalStorageVolumes = ContextCompat.getExternalFilesDirs(getApplicationContext(),null);
+            File primaryExternalStorage = externalStorageVolumes[1];
+            path = primaryExternalStorage.getAbsolutePath();
+            StatFs stats = new StatFs(path);
+            long total = (stats.getTotalBytes());
+            long free = (stats.getAvailableBytes());
+
+            if (stats == null) {
+                Timber.w("Could not get storage information");
+                return storageInfo;
+            }
+            storageInfo.put("DISK_TOTAL", String.valueOf(total));
+            storageInfo.put("DISK_FREE", String.valueOf(free));
+        } catch (Throwable e) {
+            Timber.w(e);
+        }
+        return storageInfo;
     }
 
 }
