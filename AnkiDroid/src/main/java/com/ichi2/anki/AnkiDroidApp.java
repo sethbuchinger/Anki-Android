@@ -759,16 +759,14 @@ public class AnkiDroidApp extends Application {
         storageInfo.put("DISK_FREE", "");
         try {
             File[] externalStorageVolumes = ContextCompat.getExternalFilesDirs(getApplicationContext(),null);
+
+            // First element is considered Primary Storage Volume on Android OS
             File primaryExternalStorage = externalStorageVolumes[0];
             path = primaryExternalStorage.getAbsolutePath();
             StatFs stats = new StatFs(path);
             long total = (stats.getTotalBytes());
             long free = (stats.getAvailableBytes());
 
-            if (stats == null) {
-                Timber.w("Could not get storage information");
-                return storageInfo;
-            }
             storageInfo.put("DISK_TOTAL", String.valueOf(total));
             storageInfo.put("DISK_FREE", String.valueOf(free));
         } catch (Throwable e) {
