@@ -259,6 +259,8 @@ public class AnkiDroidApp extends Application {
         ACRA.getErrorReporter().putCustomData("WEBVIEW_VER_CODE", fetchWebViewInformation().get("WEBVIEW_VER_CODE"));
         ACRA.getErrorReporter().putCustomData("DISK_TOTAL", fetchStorageInformation().get("DISK_TOTAL"));
         ACRA.getErrorReporter().putCustomData("DISK_FREE", fetchStorageInformation().get("DISK_FREE"));
+
+
     }
 
     @Override
@@ -757,6 +759,8 @@ public class AnkiDroidApp extends Application {
         String path;
         storageInfo.put("DISK_TOTAL", "");
         storageInfo.put("DISK_FREE", "");
+
+
         try {
             File[] externalStorageVolumes = ContextCompat.getExternalFilesDirs(getApplicationContext(),null);
 
@@ -764,11 +768,12 @@ public class AnkiDroidApp extends Application {
             File primaryExternalStorage = externalStorageVolumes[0];
             path = primaryExternalStorage.getAbsolutePath();
             StatFs stats = new StatFs(path);
-            long total = (stats.getTotalBytes());
-            long free = (stats.getAvailableBytes());
-
+            long total = (stats.getBlockSizeLong()*stats.getBlockCountLong());
+            long free = (stats.getBlockSizeLong()* stats.getAvailableBlocksLong());
             storageInfo.put("DISK_TOTAL", String.valueOf(total));
             storageInfo.put("DISK_FREE", String.valueOf(free));
+
+
         } catch (Throwable e) {
             Timber.w(e);
         }
